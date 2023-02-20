@@ -69,22 +69,71 @@ class Integer{
 public:
     Integer(){
         m_pInt = new int(0);
+        cout <<  "Integer()" << endl;
     };
 
     explicit Integer(int value){
         m_pInt = new int(value);
+        cout <<  "Integer(int value)" << endl;
     };
 
 
     Integer(const Integer &obj){ //Always pass by reference dont pass by value because each time new copy of object is created and copy constructor stuck in  a loop
         m_pInt = new int (*obj.m_pInt);
+        cout <<  "Integer(const Integer &obj)" << endl;
     };
+
+    Integer(Integer &&obj){
+        m_pInt = obj.m_pInt;
+        obj.m_pInt = nullptr;
+        cout <<  "Integer(Integer &&obj)" << endl;
+    }
+
+    Integer operator +(const Integer & a)const{
+        Integer temp;
+        *temp.m_pInt = *m_pInt + *a.m_pInt;
+        return temp;
+    }
+
+    Integer & operator ++(){
+        ++(*m_pInt);
+        return *this;
+    }
+
+    Integer operator ++(int){
+        Integer temp(*this);
+        ++(*m_pInt);
+        return temp;
+    }
+
+    bool  operator==(const Integer &a) const {
+        return *m_pInt == *a.m_pInt;
+    }
+
+    Integer & operator=(const Integer &a){
+        if(this != &a){
+            delete m_pInt;
+            m_pInt = new int(*a.m_pInt);
+        }
+        return *this;
+    }
+
+    Integer & operator=(Integer &&a){
+        if(this != &a){
+            delete m_pInt;
+            m_pInt = a.m_pInt;
+            a.m_pInt = nullptr;
+        }
+        return *this;
+    }
 
     int getValue() const{
         return *m_pInt;
     }
 
     void setValue(int value){
+        if(m_pInt == nullptr)
+            m_pInt = new int{};
         *m_pInt = value;
     }
 
@@ -92,6 +141,7 @@ public:
 
     ~Integer(){
         delete m_pInt;
+        cout <<  "~Integer()" << endl;
     };
 
 };

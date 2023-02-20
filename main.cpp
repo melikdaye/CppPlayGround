@@ -286,7 +286,7 @@ namespace LRValueAndRValueRef {
       * Represents a temporary
       * Created with && operator
       * Cannot point to l-values
-      * R-value references always bind to temporaries
+      * R-value references always bind to temporaries (r-values)
       * L-value references always bind to l-values
       *
       * */
@@ -307,11 +307,132 @@ namespace LRValueAndRValueRef {
 
 namespace CopyMoveSemantics{
 
+    /// Copy-Move Semantics
     /*
      * Copy is implemented through copy constructor
      * Copy of the object state is created
      * Wasteful in case copy is created from a temporary
+     * Move can be used for transferring to new object without copying the temporary object
      * */
+
+    /*
+     * In move operation new object created from temporary object with shallow copy, that means new object use and stole the resources of temporary object.
+     * For detecting temporary objects we can implement constructor that accepts an R-value references (Move constructor)
+     * After move operation temporary object resources assign to null pointer and wait to freed by user.
+     * If user try to access underlying resources of temporary object after move operation, program will crash
+     * If user re-initialize temporary object with new memory allocation and assigment after move then object can be used in program
+     * */
+
+    Integer Add(const Integer &a , const Integer &b){
+        Integer temp;
+        temp.setValue(a.getValue()+ b.getValue());
+        return temp; // This return value type temporary object
+    }
+
+    void copySemantic(){
+
+        Integer a(1),b(3);
+        a.setValue(Add(a,b).getValue()); // So for setting value temporary object has to be copied because function requires l-value (waste)
+    }
+
+    /// RULE OF 5
+    /*
+     *
+     * If  a class has ownership semantics, then you must provide a user defined : destructor, copy constructor, copy assigment operator, move constructor, move assignment operator
+     * If only provide a constructor, then compiler automatically synthesize these operators
+     * If a copy constructor or copy assignment operator is defined by user, then move operations will be deleted. Move operations must have to be defined by user
+     * The defining of destructor create same affect like copy constructor, move operations become deleted
+     * If a move constructor or operator is defined by user, then all these constructors will be deleted except destructor.
+     * If deleted constructors are not going to be defined in custom implementation by user, user can use default specifier to call compiler to synthesize these automatically
+     * Example : Integer & operator=(Integer&&)=default; // Create synthetic operations by compiler, but they are also considered as user-defined constructors
+     *
+     *
+        Custom	            Copy Constructor    Copy Assignment    Move Constructor    Move Assignment    Destructor
+        Copy constructor	Custom	            =default	       =delete	           =delete	          =default
+        Copy assignment	    =default	        Custom	           =delete	           =delete	          =default
+        Move constructor	=delete	            =delete	           Custom	           =delete	          =default
+        Move assignment	    =delete	            =delete	           =delete	           Custom	          =default
+        Destructor	        =default	        =default	       =delete	           =delete	          Custom
+        None	            =default	        =default	       =default            =default	          =default
+
+    */
+
+    /// COPY ELISION
+
+    /*
+     * Compiler can omit move or copy operations when if needed to avoid create unnecessary objects.
+     * For elision, class must have move and copy constructors
+     * */
+
+    /// STD::MOVE
+
+    void forceCopyToMove(){
+
+        Integer a(1);
+        auto b(a); //It invokes copy constructor because "a" is l-value
+
+        auto c(std::move(a)); // It invokes move constructor because std::move cast "a" to r-value reference (static_cast<Integer &&>(a))
+
+        //cout << a.getValue() << endl; It will crash the program
+
+        a.setValue(5); // Create new resources for object and assign new value
+        cout << a.getValue() << endl; // It will not crash
+
+
+    }
+
+}
+
+namespace OperatorOverloading {
+
+        /*
+         * Integer class has member function that overload "+" operator as "Integer operator +(const Integer & a)const"
+         * "Integer operator +(const Integer & a)const" is a class member as a function called unary operator overloading that takes only one argument
+         *
+         */
+
+        void operatorOverloadingUnary() {
+
+            Integer a(1),b(3);
+            Integer sum = a + b;
+            cout << sum.getValue() << endl;
+        }
+
+        /*
+        * Global function that overload "-" operator as "Integer operator -(const Integer &a, const Integer &b)"
+        * "Integer operator -(const Integer &a, const Integer &b)" is global function called binary operator overloading that takes two arguments
+        *
+        */
+
+        Integer operator -(const Integer &a, const Integer &b) {
+            Integer temp;
+            temp.setValue(a.getValue() - b.getValue());
+            return temp;
+        }
+
+        void operatorOverloadingBinary() {
+
+            Integer a(1),b(3);
+            Integer sum = b - a;
+            cout << sum.getValue() << endl;
+
+        }
+
+        /*
+         * If same operator is overloaded in both global and class scope compiler complains about ambiguous overload and cannot compile the code
+         *
+         *
+         * */
+
+        void overloadPostPreIncrement(){
+
+            Integer a(1),b(3);
+            Integer sum = a + b;
+
+            cout << (sum++).getValue() << endl; //Temporary object is created
+            cout << (++sum).getValue() << endl; // It returns l-value by reference, is more efficient than post-increment
+
+        }
 
 }
 
@@ -329,6 +450,11 @@ int main() {
     copyConstructor();
     LRValueAndRValueRef::assigmentExample();
     LRValueAndRValueRef::rValueReference();
+    CopyMoveSemantics::copySemantic();
+    CopyMoveSemantics::forceCopyToMove();
+    OperatorOverloading::operatorOverloadingUnary();
+    OperatorOverloading::operatorOverloadingBinary();
+    OperatorOverloading::overloadPostPreIncrement();
 
 
 
