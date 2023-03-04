@@ -1,4 +1,4 @@
-The system is: Windows - 10.0.25300 - AMD64
+The system is: Windows - 10.0.19044 - AMD64
 Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
 Compiler: C:/Program Files (x86)/Microsoft Visual Studio 12.0/VC/bin/amd64_x86/cl.exe 
 Build flags: 
@@ -21,7 +21,7 @@ Compilation of the C compiler identification source "CMakeCCompilerId.c" produce
 
 Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CMakeCCompilerId.obj"
 
-The C compiler identification is MSVC, found in "C:/Users/melik/CLionProjects/CppPlayGround/cmake-build-debug/CMakeFiles/3.21.1/CompilerIdC/CMakeCCompilerId.exe"
+The C compiler identification is MSVC, found in "C:/Users/Administrator/CLionProjects/CppPlayGround/cmake-build-debug/CMakeFiles/3.19.2/CompilerIdC/CMakeCCompilerId.exe"
 
 Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
 Compiler: C:/Program Files (x86)/Microsoft Visual Studio 12.0/VC/bin/amd64_x86/cl.exe 
@@ -45,31 +45,43 @@ Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" p
 
 Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CMakeCXXCompilerId.obj"
 
-The CXX compiler identification is MSVC, found in "C:/Users/melik/CLionProjects/CppPlayGround/cmake-build-debug/CMakeFiles/3.21.1/CompilerIdCXX/CMakeCXXCompilerId.exe"
+The CXX compiler identification is MSVC, found in "C:/Users/Administrator/CLionProjects/CppPlayGround/cmake-build-debug/CMakeFiles/3.19.2/CompilerIdCXX/CMakeCXXCompilerId.exe"
 
 Detecting C compiler ABI info compiled with the following output:
-Change Dir: C:/Users/melik/CLionProjects/CppPlayGround/cmake-build-debug/CMakeFiles/CMakeTmp
+Change Dir: C:/Users/Administrator/CLionProjects/CppPlayGround/cmake-build-debug/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files/JetBrains/CLion 2021.3.2/bin/ninja/win/ninja.exe cmTC_cd5d6 && [1/2] Building C object CMakeFiles\cmTC_cd5d6.dir\CMakeCCompilerABI.c.obj
-[2/2] Linking C executable cmTC_cd5d6.exe
+Run Build Command(s):nmake /nologo cmTC_bdb3b\fast && 	"C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\BIN\amd64\nmake.exe"  -f CMakeFiles\cmTC_bdb3b.dir\build.make /nologo -L                  CMakeFiles\cmTC_bdb3b.dir\build
+Building C object CMakeFiles/cmTC_bdb3b.dir/CMakeCCompilerABI.c.obj
+	C:\PROGRA~2\MICROS~1.0\VC\bin\AMD64_~1\cl.exe @C:\Users\ADMINI~1\AppData\Local\Temp\nmA289.tmp
+CMakeCCompilerABI.c
+Linking C executable cmTC_bdb3b.exe
+	"C:\Program Files\JetBrains\CLion 2021.1.1\bin\cmake\win\bin\cmake.exe" -E vs_link_exe --intdir=CMakeFiles\cmTC_bdb3b.dir --rc=C:\PROGRA~2\WI3CF2~1\8.1\bin\x64\rc.exe --mt=C:\PROGRA~2\WI3CF2~1\8.1\bin\x64\mt.exe --manifests -- C:\PROGRA~2\MICROS~1.0\VC\bin\AMD64_~1\link.exe /nologo @CMakeFiles\cmTC_bdb3b.dir\objects1.rsp @C:\Users\ADMINI~1\AppData\Local\Temp\nmA44F.tmp
 
 
 
 Detecting CXX compiler ABI info compiled with the following output:
-Change Dir: C:/Users/melik/CLionProjects/CppPlayGround/cmake-build-debug/CMakeFiles/CMakeTmp
+Change Dir: C:/Users/Administrator/CLionProjects/CppPlayGround/cmake-build-debug/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files/JetBrains/CLion 2021.3.2/bin/ninja/win/ninja.exe cmTC_1761f && [1/2] Building CXX object CMakeFiles\cmTC_1761f.dir\CMakeCXXCompilerABI.cpp.obj
-[2/2] Linking CXX executable cmTC_1761f.exe
+Run Build Command(s):nmake /nologo cmTC_1d103\fast && 	"C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\BIN\amd64\nmake.exe"  -f CMakeFiles\cmTC_1d103.dir\build.make /nologo -L                  CMakeFiles\cmTC_1d103.dir\build
+Building CXX object CMakeFiles/cmTC_1d103.dir/CMakeCXXCompilerABI.cpp.obj
+	C:\PROGRA~2\MICROS~1.0\VC\bin\AMD64_~1\cl.exe @C:\Users\ADMINI~1\AppData\Local\Temp\nmA77A.tmp
+CMakeCXXCompilerABI.cpp
+Linking CXX executable cmTC_1d103.exe
+	"C:\Program Files\JetBrains\CLion 2021.1.1\bin\cmake\win\bin\cmake.exe" -E vs_link_exe --intdir=CMakeFiles\cmTC_1d103.dir --rc=C:\PROGRA~2\WI3CF2~1\8.1\bin\x64\rc.exe --mt=C:\PROGRA~2\WI3CF2~1\8.1\bin\x64\mt.exe --manifests -- C:\PROGRA~2\MICROS~1.0\VC\bin\AMD64_~1\link.exe /nologo @CMakeFiles\cmTC_1d103.dir\objects1.rsp @C:\Users\ADMINI~1\AppData\Local\Temp\nmA7CA.tmp
 
 
 
 
 
 Detecting CXX [] compiler features compiled with the following output:
-Change Dir: C:/Users/melik/CLionProjects/CppPlayGround/cmake-build-debug/CMakeFiles/CMakeTmp
+Change Dir: C:/Users/Administrator/CLionProjects/CppPlayGround/cmake-build-debug/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files/JetBrains/CLion 2021.3.2/bin/ninja/win/ninja.exe cmTC_2cf43 && [1/2] Building CXX object CMakeFiles\cmTC_2cf43.dir\feature_tests.cxx.obj
-[2/2] Linking CXX executable cmTC_2cf43.exe
+Run Build Command(s):nmake /nologo cmTC_89515\fast && 	"C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\BIN\amd64\nmake.exe"  -f CMakeFiles\cmTC_89515.dir\build.make /nologo -L                  CMakeFiles\cmTC_89515.dir\build
+Building CXX object CMakeFiles/cmTC_89515.dir/feature_tests.cxx.obj
+	C:\PROGRA~2\MICROS~1.0\VC\bin\AMD64_~1\cl.exe @C:\Users\ADMINI~1\AppData\Local\Temp\nmAA78.tmp
+feature_tests.cxx
+Linking CXX executable cmTC_89515.exe
+	"C:\Program Files\JetBrains\CLion 2021.1.1\bin\cmake\win\bin\cmake.exe" -E vs_link_exe --intdir=CMakeFiles\cmTC_89515.dir --rc=C:\PROGRA~2\WI3CF2~1\8.1\bin\x64\rc.exe --mt=C:\PROGRA~2\WI3CF2~1\8.1\bin\x64\mt.exe --manifests -- C:\PROGRA~2\MICROS~1.0\VC\bin\AMD64_~1\link.exe /nologo @CMakeFiles\cmTC_89515.dir\objects1.rsp @C:\Users\ADMINI~1\AppData\Local\Temp\nmAB44.tmp
 
 
 

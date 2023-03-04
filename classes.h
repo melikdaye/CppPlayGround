@@ -5,6 +5,7 @@
 #ifndef CPPPLAYGROUND_CLASSES_H
 #define CPPPLAYGROUND_CLASSES_H
 #include "iostream"
+#include <memory>
 
 using namespace  std;
 
@@ -72,7 +73,7 @@ public:
         cout <<  "Integer()" << endl;
     };
 
-    explicit Integer(int value){
+    Integer(int value){
         m_pInt = new int(value);
         cout <<  "Integer(int value)" << endl;
     };
@@ -143,6 +144,71 @@ public:
         delete m_pInt;
         cout <<  "~Integer()" << endl;
     };
+
+    operator int(){
+        return *m_pInt;
+    }
+
+    friend class Printer; //friend keyword allows to function or class
+};
+
+class Printer{
+    std::weak_ptr<int > m_pValue{};
+    public:
+        void setValue(std::weak_ptr<int> p){
+            m_pValue = p;
+        }
+        void print(){
+            cout << "Ref count:" << m_pValue.use_count() << endl;
+            if(m_pValue.expired()){
+                cout << "Resource is no longer available" << endl;
+                return;
+             }
+            auto sp = m_pValue.lock();
+            cout << "Value is: " << *sp << endl;
+            cout << "Ref count:" << sp.use_count() << endl;
+        }
+
+};
+
+class Product{
+    Integer m_Id;
+
+public:
+    Product(const Integer &id):m_Id(id){
+        cout << "Product(Const Integer &)" << endl;
+    }
+    ~Product(){
+        cout << "~" << endl;
+    }
+    const Integer & GetInteger()const{
+        return  m_Id;
+    }
+    operator Integer(){
+        return  m_Id;
+    }
+};
+
+class Project {
+    std::string m_Name;
+    public:
+        void setName(const std::string &name){
+            m_Name = name;
+        }
+        void showProjectDetails(){
+            cout << "Project Name" << m_Name.data() << endl;
+        }
+};
+
+class Employee{
+    std::shared_ptr<Project> m_project{};
+    public:
+        void setProject(std::shared_ptr<Project> &project){
+            m_project = project;
+        }
+        const std::shared_ptr<Project> & getProject()const {
+            return m_project;
+        }
 
 };
 

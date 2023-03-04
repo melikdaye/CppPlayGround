@@ -1,5 +1,7 @@
 #include <iostream>
 #include "classes.h"
+#include <memory>
+#include <string>
 
 using namespace std;
 
@@ -385,6 +387,17 @@ namespace CopyMoveSemantics{
 
 namespace OperatorOverloading {
 
+
+        /*
+         * Associativity, precedence & arity (operand count) does not change
+         * Operator functions should be non-static (except for new & delete)
+         * One argument should be user defined type
+         * Global overload if first operand is primitive type
+         * Not all operators can be overloaded (., ?:, .*, sizeof, #)
+         * Cannot define new operators
+         *
+         * */
+
         /*
          * Integer class has member function that overload "+" operator as "Integer operator +(const Integer & a)const"
          * "Integer operator +(const Integer & a)const" is a class member as a function called unary operator overloading that takes only one argument
@@ -434,6 +447,396 @@ namespace OperatorOverloading {
 
         }
 
+
+        // Global operator overloading function to sum int + Integer
+        Integer operator+(int x,Integer & y){
+            Integer sum;
+            sum.setValue(x + y.getValue());
+            return  sum;
+        }
+
+        ostream & operator<<(ostream & out,const Integer &a){
+            out << a.getValue();
+            return out;
+        }
+
+        istream & operator>>(istream & input,Integer &a){
+            int x;
+            input >> x;
+            a.setValue(x);
+            return input;
+        }
+
+        void globalOverloadsAndAutoTypeConversion(){
+
+            Integer a(1),b(3);
+            //Integer sum1 = a + 5; //a.operator+(5) 5 is automatically cast to Integer type but cannot use with type conversion operator
+            Integer sum2 = 5 + a; //5.oprator+(a) is invalid because 5 is not an Integer type so global operator overloading function has to be defined to be valid expression
+
+            //Works with "ostream & operator<<(ostream & out,const Integer &a)" function
+            cout << sum2 << endl; //ostream operator overloaded in own class so if we add new behaviour for custom class, we have to create global overload
+
+            //Works with "istream & operator>>(istream & input,Integer &a)" function
+            cin >> a;
+            cout << a << endl;
+
+        }
+
+}
+
+namespace TypeConversion {
+
+    void primitiveToPrimitiveTypes(){
+
+        int a = 5, b=2;
+        float f = a / b; //data precision loss
+        cout << f << endl;
+        float f2 = static_cast<float>(a) / b;
+        cout << f2 << endl;
+
+        char *p = (char*) &a; // It does not check casting operation is valid cast
+        //char * p2 = static_cast<char *>(a) // static_cast validate cast and compiler gives error
+        char *p2 = reinterpret_cast<char *>(a); //If you know what you are doing then use reinterpret cast to conversion between incompatible types
+        // C style cast can discard qualifiers and it causes bugs but reinterpret cast does not discard qualifiers
+        const int x = 1;
+        int *p3 = (int *)&x; // Discard qualifier const
+        //int *p4 = reinterpret_cast<int *>(&x); It does not allow to cast by compiler because const qualifier is required
+        int *p4 = const_cast<int *>(&x); //It cast to desired type with preserving const qualifier
+    }
+
+    void Print(Integer a){ //const Integer &a also works
+
+    }
+
+    void primitiveToUserType(){
+
+        //Parameterized constructors can take a role in type conversion
+        Integer a1{5}; // Explicitly type conversion
+        Integer a2 = 5; // Implicitly type conversion (search for suitable constructor and init object)
+
+        Print(5); // Implicitly type conversion (search for suitable constructor and init object)
+
+        a1 = 7; //Match with move assignment then parameterized constructor called then move operation proceed
+
+        /*
+         * If parameterized constructor declared with explicit keyword all implicitly type conversions are not allowed
+         * explicit Integer(int value){...}
+         * */
+    }
+
+    void userTypeToPrimitiveType(){
+        /*
+         * Primitive to user defined type conversion can be implemented with type operators
+         * Exp : operator int()
+         * */
+        Integer a1{5};
+        int x = a1;
+
+        // If type operator is declared with explicit keyword then cast conversion functions must be used
+        // Exp: int x = static_cast<int>(a1);
+    }
+
+
+    void userTypeToUserType(){
+        Product p{5};
+        Integer id = p.GetInteger(); //Custom function can be implemented for type conversion
+
+        //However, more proper way is to use type conversion operator
+        id = p;
+
+        if (id == p){ // Also use type conversion operator to compare
+            cout << "Id Match with the product" << endl;
+        }
+    }
+
+
+}
+
+namespace SmartPointers{
+
+    Integer * getPointer(int value){
+        Integer *p = new Integer{value};
+        return  p;
+    }
+    void Display(Integer *p){
+        if(!p){
+            return;
+        }
+        cout << p->getValue() << endl;
+    }
+
+    void Store(std::unique_ptr<Integer> p){
+        cout << "Stroing data into a file" << p->getValue() << endl;
+    }
+
+    void Store2(std::unique_ptr<Integer> &p){
+        cout << "Stroing data into a file" << p->getValue() << endl;
+    }
+
+    void uniquePointer(){
+        std::unique_ptr<Integer> p {getPointer(5)}; // Create unique pointer
+        if(p == nullptr){
+            //p = new Integer{5}; // p is not pointer so it cannot be initialize assigment operator
+            p.reset(new Integer{5}); // If re-initialize pointer use reset
+        }
+        p->setValue(100);
+        Display(p.get()); // Get() method access underlying pointer under unique pointer object
+        //delete p; Deleting pointer is accepted but p is not a pointer , it is an unique pointer object cannot be deleted like that
+        p = nullptr; // This assigment invoke operator overloading in unique pointer class and assign null pointer to underlying pointer in unique pointer object (like calling delete on pointer)
+        p.reset(new Integer{});
+        *p = __LINE__; // De-referencing operator overloaded to access value of underlying pointer
+        Display(p.get());
+        // Unique pointer does not need to be deleted, it uses RAII and object lifespan is end with scope and de-constructor is called
+        // Store(p); // It does not work because copy constructor is deleted for unique pointer class
+        Store(std::move(p)); // Unique pointer cannot be copied but it can be moved with move constructor
+        //After move operation ownership of underlying pointer is moved to underlying pointer of function input object and start lifecycle of itself
+        //So accessing after move operation is not allowed, if we use pointer again we have to call reset function
+        p.reset(new Integer{10});
+        Store2(p); // If function takes input by reference, std::move does not need to be used and after store function p can be used without reset also
+        *p = 20;
+
+    }
+
+    /*
+     * If object have dependency on other object pointer unique pointer cannot be used
+     * Project and employees is one of the example of this hierarchy , employees have a Project pointer
+     * When first employee use project pointer takes the ownership of underlying pointer of Project object
+     * So Project pointer is moved to pointer that under Employee object and become useless
+     * Unique pointers cannot be shared , they are only moved so shared pointer can be used for this architecture
+     * Shared pointer keep share count of pointer, when holder release shared pointer decremented this count when is shared incremented
+     * If shard pointer reference count become zero, destructor called to release the underlying pointer
+     *
+     * */
+    void showInfo(std::shared_ptr<Employee> &emp){
+        cout << "Employee project info" << endl;
+        emp->getProject()->showProjectDetails();
+    }
+    void sharedPointer(){
+
+
+        std::shared_ptr<Project> project{new Project{}};
+        project->setName("Video Decoder");
+        std::shared_ptr<Employee> e1 {new Employee{}};
+        e1->setProject(project);
+        std::shared_ptr<Employee> e2 {new Employee{}};
+        e2->setProject(project);
+        std::shared_ptr<Employee> e3 {new Employee{}};
+        e3->setProject(project);
+
+        cout << "Reference count:" << project.use_count() << endl;
+
+        showInfo(e1);
+        showInfo(e2);
+        showInfo(e3);
+        project->showProjectDetails();
+        e1 = nullptr;
+        e2 = nullptr;
+        e3 = nullptr;
+
+        cout << "Reference count:" << project.use_count() << endl;
+
+    }
+    /*
+     * If we want to share pointer between objects and objects have to know original underlying memory is freed
+     *  shared_pointer cannot be handle this situation because of reference counter keeps memory until reach to zero
+     *  So weak pointer can be used for this scenario, weak pointer is used with shared pointer
+     *  It points to control block of shared pointer, multiple shared pointers can point to same control block
+     *  If underlying pointer of shared  memory is released and counter becomes zero , weak pointer checks this with expired() method
+     *  If we want to access underlying pointer of shared pointer that weak pointer points to
+     *  we cannot access directly, instead we use lock() method to increment counter(create shared pointer from source) and get the address of memory for use
+     *  Weak pointer also is useful for circular references between classes
+     *
+     *
+     * */
+    void weakPointer() {
+        Printer printer;
+        int num {};
+        cin >> num;
+        std::shared_ptr<int> p{new int{num}};
+        printer.setValue(p);
+        if(*p > 10){
+            p = nullptr;
+        }
+        printer.print();
+    }
+
+    /*
+     * Smart pointers call the destructor end of the scope and it calls the delete method
+     * For using new operator, it works fine but for custom memory allocation or descriptor causes undefined behaviour
+     * It may not be release or handle memory properly
+     * When it calls delete method it invokes deleter callback mechanism, if we want to handle
+     * custom memory management behaviour, we can define custom deleter and provide to smart pointer
+     *
+     * */
+
+    struct Free{
+        void operator()(int *p){
+            free(p);
+            cout << "Pointer freed" << endl;
+        }
+    }; // Can be used as deleter without members over function objects
+
+    void MallocFree(int *p){
+        free(p);
+        cout << "Pointer freed" << endl;
+    } // Can be used as deleter over function pointer
+    void deleter(){
+
+        std::unique_ptr<int,Free> p {(int*) malloc(4),Free{}};
+        std::unique_ptr<int,void (*)(int *)> p1 {(int*) malloc(4), MallocFree};
+        std::shared_ptr<int> p2 {(int*) malloc(4), MallocFree}; //Shared pointer does not require type of deleter
+        *p = 100;
+        *p1 = 200;
+        cout << *p << endl;
+        cout << *p1 << endl;
+    }
+
+    void dynamicArrays(){
+        std::unique_ptr<int> p{new int[5]{1,2,3,4,5}}; //Cannot access with array subscript also deleter cannot delete this in proper way
+        //p[0] = 10;
+        p.get()[0] = 10; // It works but ugly
+        // Use int[] instead of expression that above
+        std::unique_ptr<int[]> p1{new int[5]{1,2,3,4,5}}; //It works with array brackets also it calls right delete method for array
+        p1[0] = 10;
+
+        //std::shared_ptr<int[]> p2{new int[5]{1,2,3,4,5}}; This usage becomes with C++17
+    }
+
+    void makeFunctions(){
+
+        /*
+         * Equivalent of std::unique_ptr<int> p{ new int{5} }
+         * For shared pointer use make_shared
+         * Dynamic array creation with make_shared is came with C++20
+         * If you use custom deleter, make functions cannot be used
+         * */
+         auto p = std::make_unique<int>(5);
+         auto car = std::make_unique<Car>(20.0,5); //As a variadic function can take multiple arguments
+
+         auto dynamicArray = std::make_unique<int[]>(5); //Can create dynamic array but cannot initialized
+
+         auto p1 = std::make_shared<int>(5);
+
+    }
+
+}
+
+namespace AdvancedDataTypes{
+
+    enum Color{
+        RED,
+        GREEN,
+        BLUE
+    };
+
+    enum class Light : char{ //Scoped enum for global conflict, also type of the enum can be defined
+        RED = 99,
+        GREEN,
+        YELLOW
+    };
+
+    void enums(){
+        /*
+         * Created with restricted range of values, called symbolic constants or enumerators
+         * Can implicitly convert to an integer but not the other way around
+         * Default value starts from 0, but user can assign any value
+         * */
+
+        Color c = RED;
+        // c = 1; // Compile error, it can be casted with static_cast
+        c = static_cast<Color>(2);
+
+        int x = GREEN; //Implicit conversion to integer
+
+        Light l = Light::GREEN; //Scoped enum variable
+
+        int y = static_cast<int>(Light::YELLOW); // Scoped enum does not use implicit conversion, static cast must be used
+
+    }
+
+}
+
+namespace STL{
+
+    void stdString(){
+
+        //Initialize & assign
+        std::string s = "Hello";
+        s = "Hello";
+
+        //Access
+        s[0] = 'W';
+        char ch = s[1];
+        cout << s << endl;
+        cin >> s;
+        std::getline(cin,s);
+
+        //Size
+        s.length();
+
+        //Insert & Concatenate
+
+        std::string s1{"Hello"}, s2{"World"};
+        s = s1 + s2;
+        s+=s1;
+        s.insert(6,"Test");
+
+        //Comparison
+        if(s1!=s2){
+
+        }
+
+        //Removal
+        s.erase();
+        s.erase(0,5);
+        s.clear();
+
+        //Search
+
+        auto pos = s.find("World",0);
+        if(pos != std::string::npos){
+            cout << "Found" << endl;
+        }
+
+
+
+    }
+}
+
+namespace Templates{
+
+    /*
+     *  Generalizes software components
+     *  Operate of any kind of data
+     *  High performance algorithms & classes
+     *  They are generated at compile time
+     *
+     * */
+
+    //Template function is just blueprint, without invoking for any type compiler does not implicitly instantiate corresponding function
+    template<typename T>
+    T Max(T x, T y){
+        return x > y ? x: y;
+    }
+
+    //Explicit instantiation for Max char
+    template char Max(char x, char y);
+
+    void templateExamples() {
+        auto num = Max(3.3f,5.8f);
+        auto num2 = Max(38,12);
+        cout << num << endl;
+        cout << num2 << endl;
+
+        //Different primitives types as arguments
+        Max(static_cast<float>(3),5.5f);
+        Max<double>(5,6.5);
+
+        //Instantiate Max template for integer type
+        int(*pfn)(int,int) = Max;
+
+    }
+
 }
 
 
@@ -455,6 +858,19 @@ int main() {
     OperatorOverloading::operatorOverloadingUnary();
     OperatorOverloading::operatorOverloadingBinary();
     OperatorOverloading::overloadPostPreIncrement();
+    OperatorOverloading::globalOverloadsAndAutoTypeConversion();
+    TypeConversion::primitiveToPrimitiveTypes();
+    TypeConversion::primitiveToUserType();
+    TypeConversion::userTypeToPrimitiveType();
+    TypeConversion::userTypeToUserType();
+    SmartPointers::uniquePointer();
+    SmartPointers::sharedPointer();
+    SmartPointers::weakPointer();
+    SmartPointers::deleter();
+    SmartPointers::dynamicArrays();
+    SmartPointers::makeFunctions();
+    AdvancedDataTypes::enums();
+
 
 
 
