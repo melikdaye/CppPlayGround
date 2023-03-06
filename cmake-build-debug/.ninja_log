@@ -1,17 +1,3 @@
 # ninja log v5
-0	573	6930949827701332	CMakeFiles/CppPlayGround.dir/main.cpp.obj	89e7da2e6c9a42cd
-574	847	6930949830057237	CppPlayGround.exe	862a9a184c6b4883
-0	622	6984446201289850	CMakeFiles/CppPlayGround.dir/main.cpp.obj	d18785ceca0dc0ad
-622	1105	6984446205499590	CppPlayGround.exe	112c457f1df3c7e2
-1	310	6984446637277457	CMakeFiles/CppPlayGround.dir/main.cpp.obj	d18785ceca0dc0ad
-310	591	6984446639764521	CppPlayGround.exe	112c457f1df3c7e2
-1	596	6984502498250195	CMakeFiles/CppPlayGround.dir/main.cpp.obj	d18785ceca0dc0ad
-596	929	6984502501149163	CppPlayGround.exe	112c457f1df3c7e2
-0	562	6984522186660173	CMakeFiles/CppPlayGround.dir/main.cpp.obj	d18785ceca0dc0ad
-562	821	6984522188865360	CppPlayGround.exe	112c457f1df3c7e2
-0	623	6984997611633306	CMakeFiles/CppPlayGround.dir/main.cpp.obj	d18785ceca0dc0ad
-623	1047	6984997614940838	CppPlayGround.exe	112c457f1df3c7e2
-1	319	6985001356182533	CMakeFiles/CppPlayGround.dir/main.cpp.obj	d18785ceca0dc0ad
-319	680	6985001358768388	CppPlayGround.exe	112c457f1df3c7e2
 0	306	6985001996277215	CMakeFiles/CppPlayGround.dir/main.cpp.obj	d18785ceca0dc0ad
 306	582	6985001998683812	CppPlayGround.exe	112c457f1df3c7e2

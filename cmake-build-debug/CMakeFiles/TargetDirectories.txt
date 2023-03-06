@@ -1,3 +1,3 @@
-C:/Users/Administrator/CLionProjects/CppPlayGround/cmake-build-debug/CMakeFiles/CppPlayGround.dir
-C:/Users/Administrator/CLionProjects/CppPlayGround/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Users/Administrator/CLionProjects/CppPlayGround/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+C:/Users/melik/CLionProjects/CppPlayGround/cmake-build-debug/CMakeFiles/CppPlayGround.dir
+C:/Users/melik/CLionProjects/CppPlayGround/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/melik/CLionProjects/CppPlayGround/cmake-build-debug/CMakeFiles/rebuild_cache.dir

@@ -822,6 +822,27 @@ namespace Templates{
     //Explicit instantiation for Max char
     template char Max(char x, char y);
 
+    //Explicit Specialization for char array comparison
+    //It has to be defined in definition file(cpp)
+    template<> const char *Max<const char *>(const char *x,const char *y){
+        return strcmp(x,y) > 0 ? x :y;
+    }
+
+    //Non-type Template Arguments
+    //Arguments cannot be modified in template function
+    template<int size>
+    void Print(){
+        cout << size << endl;
+    }
+    template<typename T,int size>
+    T Sum(T(&arr)[size]){
+        T sum{};
+        for (int i = 0; i < size; ++i) {
+            sum += arr[i];
+        }
+        return sum;
+    }
+
     void templateExamples() {
         auto num = Max(3.3f,5.8f);
         auto num2 = Max(38,12);
@@ -835,6 +856,46 @@ namespace Templates{
         //Instantiate Max template for integer type
         int(*pfn)(int,int) = Max;
 
+        const char *b {"B"};
+        const char *a {"A"};
+
+        auto s = Max(a,b);
+        cout << s << endl;
+
+        int i = 3;
+        Print<3>();
+        //Print<i>(); Does not work because this specified in compile time
+        Print<sizeof(i)>(); //It works because sizeof is compile time function
+
+        int arr[]{1,3,5,7,9};
+        int sum = Sum(arr);
+        cout << sum << endl;
+
+    }
+
+    void perfectForwarding(){
+        // Use std::forward for preserving r or l value type in template member functions that calls constructors
+        auto product = Product{"Cheese",Integer{245}};
+
+    }
+
+    void Print(){
+
+    }
+    //Template parameter pack
+    template<typename T,typename...Params>
+    //Function parameter pack
+    void Print(T &&a,Params&&... args){
+
+        cout << a;
+        if(sizeof...(args)!=0){
+            cout << ",";
+        }
+        Print(std::forward<Params>(args)...);
+    }
+
+    void variadicTemplates(){
+        Print(1,2,4.5,"4");
     }
 
 }
@@ -870,6 +931,8 @@ int main() {
     SmartPointers::dynamicArrays();
     SmartPointers::makeFunctions();
     AdvancedDataTypes::enums();
+    Templates::templateExamples();
+    Templates::perfectForwarding();
 
 
 

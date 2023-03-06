@@ -50,7 +50,7 @@ cmake_ninja_workdir = C$:\Users\melik\CLionProjects\CppPlayGround\cmake-build-de
 build cmake_object_order_depends_target_CppPlayGround: phony || CMakeFiles\CppPlayGround.dir
 
 build CMakeFiles\CppPlayGround.dir\main.cpp.obj: CXX_COMPILER__CppPlayGround_Debug C$:\Users\melik\CLionProjects\CppPlayGround\main.cpp || cmake_object_order_depends_target_CppPlayGround
-  FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -MDd
+  FLAGS = /DWIN32 /D_WINDOWS /GR /EHsc /Zi /Ob0 /Od /RTC1 -MDd
   OBJECT_DIR = CMakeFiles\CppPlayGround.dir
   OBJECT_FILE_DIR = CMakeFiles\CppPlayGround.dir
   TARGET_COMPILE_PDB = CMakeFiles\CppPlayGround.dir\
@@ -65,7 +65,7 @@ build CMakeFiles\CppPlayGround.dir\main.cpp.obj: CXX_COMPILER__CppPlayGround_Deb
 # Link the executable CppPlayGround.exe
 
 build CppPlayGround.exe: CXX_EXECUTABLE_LINKER__CppPlayGround_Debug CMakeFiles\CppPlayGround.dir\main.cpp.obj
-  FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -MDd
+  FLAGS = /DWIN32 /D_WINDOWS /GR /EHsc /Zi /Ob0 /Od /RTC1 -MDd
   LINK_FLAGS = /machine:X86 /debug /INCREMENTAL /subsystem:console
   LINK_LIBRARIES = kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib
   OBJECT_DIR = CMakeFiles\CppPlayGround.dir

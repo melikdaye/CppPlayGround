@@ -173,10 +173,18 @@ class Printer{
 
 class Product{
     Integer m_Id;
-
+    std::string name;
 public:
     Product(const Integer &id):m_Id(id){
         cout << "Product(Const Integer &)" << endl;
+    }
+
+    template<typename T1,typename T2>
+    Product(T1 &&name, T2&&id):
+        m_Id{std::forward<T2>(id)},
+        name{std::forward<T1>(name)}
+    {
+
     }
     ~Product(){
         cout << "~" << endl;
