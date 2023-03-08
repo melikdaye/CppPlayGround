@@ -2,6 +2,12 @@
 #include "classes.h"
 #include <memory>
 #include <string>
+#include "vector"
+#include "OOP/Inheritance/Animal.h"
+#include "OOP/Polymorphism/Checking.h"
+#include "OOP/Polymorphism/Transaction.h"
+#include "OOP/Creational Design Patterns/singleton.h"
+#include <list>
 
 using namespace std;
 
@@ -875,7 +881,8 @@ namespace Templates{
 
     void perfectForwarding(){
         // Use std::forward for preserving r or l value type in template member functions that calls constructors
-        auto product = Product{"Cheese",Integer{245}};
+        //TODO fix this
+//        auto product = Product{"Cheese",Integer{245}};
 
     }
 
@@ -898,42 +905,371 @@ namespace Templates{
         Print(1,2,4.5,"4");
     }
 
+    template<typename T,int size>
+    class Stack{
+        T m_Buffer[size];
+        int m_top{-1};
+
+        public:
+            Stack() = default;
+            void push(const T &element){
+                m_Buffer[++m_top] = element;
+            }
+            void pop();
+            const T& top() const{
+                return m_Buffer[m_top];
+            }
+            bool isEmpty(){
+                return m_top == -1;
+            }
+            static Stack create(); //Short hand notation
+    };
+    template<typename T,int size>
+    void Stack<T,size>::pop() {
+        --m_top;
+    }
+    template<typename T,int size>
+    Stack<T,size> Stack<T,size>::create() {
+        return Stack<T,size> ();
+    }
+
+    void classTemplates(){
+        Stack<float,10> s;
+        s.push(1);
+        s.push(2.4);
+        s.push(5);
+        while (!s.isEmpty()){
+            cout << s.top() << endl;
+            s.pop();
+        }
+    }
+
+    template<typename T>
+    class PrettyPrinter{
+        T* m_data;
+        public:
+
+            PrettyPrinter(T *data):m_data(data){}
+            void print(){
+                cout << "{" << *m_data << "}" << endl;
+            }
+            T *getData(){
+                return m_data;
+            }
+
+    };
+
+    template<>
+    void PrettyPrinter<std::vector<int>>::print() {
+        cout << "{";
+        for (const auto &x:*m_data) {
+            cout << x;
+        }
+        cout << "}" << endl;
+    }
+    void classTemplateExplicit(){
+        std::vector<int> v{1,2,3,4,5};
+        PrettyPrinter<std::vector<int>> pv(&v);
+        pv.print();
+
+    }
+    template<typename T>
+    class SmartPointer{
+        T *ptr;
+        public:
+        SmartPointer(T *ptr):ptr(ptr){
+
+        }
+        T *operator ->(){
+            return ptr;
+        }
+        T & operator *(){
+            return *ptr;
+        }
+        ~SmartPointer(){
+            delete ptr;
+        }
+    };
+    template<typename T>
+    class SmartPointer<T[]>{
+        T *ptr;
+    public:
+        SmartPointer(T *ptr):ptr(ptr){
+
+        }
+        T &operator[](int index){
+            return ptr[index];
+        }
+        ~SmartPointer(){
+            delete[] ptr;
+        }
+    };
+    void partialSpecializationTemplates(){
+        SmartPointer<int[]> p{new int[5]};
+        p[0] = 5;
+        cout << p[0] << endl;
+    }
+
+
+    typedef unsigned int UINT; //Typedef make alias to unsigned int as UINT
+    using INT16 = short; //Type alias is C11 feature acts as typedef definitions
+
+    using PFN = const char*(*)(int); //Type alias for function pointer
+    void showError(PFN pfn){
+
+    }
+
+    template<typename T>
+    using Names = std::vector<std::list<T>>; //Alias Templates
+
+}
+
+namespace OOP{
+
+    void inheritance(){
+
+        /*
+         * Dog is derived from Animal base class
+         * Dog has same member attributes and methods from Animal class
+         * Dog class can own custom methods and also it can change behaviour of inherited functions that belongs to base class
+         *
+         * */
+        //TODO try to use parameterized constructor of base class
+        Dog d;
+        d.eat(); //Dog class change the base class eat method
+        d.run(); //Use same behaviour of parent class
+        d.speak();
+
+        /*
+         * Access modifiers are public,private and protected
+         * Public members are accessible from outside and inside of class
+         * Private members are accessible from inside of class
+         * Protected members are accessible from inside and child classes of class
+         *
+         * If child class is inherited from base class with public access modifier:
+         * (: Public) Child class access public and protected members of base class but cannot access private members
+         * (: Private) Child class inherit members of base class  as private members,
+         * private members of base class is not still accessible but other members are accessible only inside of child class
+         * (:Protected) Child class inherit members of base class as protected members,
+         * private members of base class is not still accessible but other members are accessible  inside of child class and inside of child of child class
+         *
+         * */
+
+        /*
+         * Constructors execute from base to child
+         * Destructors execute from child to base
+         * If class is specified with final keyword, it cannot be inherited by other classes
+         * If base class member method is specified with final keyword, it cannot be override by child classes
+         * */
+    }
+
+    void virtualMechanism(){
+
+        /*
+         * Virtual keyword in base class make the child class can overriding base class functions and
+         * these functions can be called from child class object in form of base class
+         *
+         * */
+        Checking ch("Bob", 100, 50);
+        Transact(&ch);
+    }
+
+#pragma region Override
+    class Document { //Abstract class
+    public:
+        virtual void Serialize(float version) = 0; //Pure virtual function
+    };
+    class Text : public Document {
+    public:
+        void Serialize(float version)override final{
+            std::cout << "Text::Serialize" << std::endl;
+        }
+    };
+    class RichText : public Text {
+    public:
+        //Cannot override because the function is final in base
+        /*void Serialize(float version)override {
+            std::cout << "RichText::Serialize" << std::endl;
+        }*/
+    };
+
+    class XML : public Document {
+    public:
+        void Serialize(float version)override {
+            std::cout << "XML::Serialize" << std::endl;
+        }
+    };
+
+    void Write(Document *p) {
+        p->Serialize(1.1f);
+    }
+
+    void overrideKeyword(){
+        /*
+         * When a child class override the virtual base class method, it may use wrong signature.
+         * For preventing that when create a new override class, function can be specified with override specifier
+         * That specifier prevents bugs that caused by wrong signature
+         *
+         * */
+
+        XML xml;
+        Write(&xml);
+
+        /*
+         * Document class is abstract class that has at least one pure virtual function
+         * Can contain other members(data,non-virtual functions, etc.)
+         * It cannot be instantiated,but used through a pointer or reference
+         * Establishes a contract with clients
+         * Used for creating interface
+         *
+         * */
+
+        /*
+         * Pure virtual function does not have an implementation(optional)
+         * Cannot be invoked directly(can invoked from derived classes)
+         * No entry in vtable
+         * Must be overridden by the derived classes
+         * */
+
+    }
+
+    void objectSlicing(){
+
+        /*
+       * With upcasting member methods of child class can be invoked from base class pointer
+       * For upcasting base class object has to be pointer to object
+       *
+       * */
+        Checking ch("Melik",100,50);
+        Account *account = &ch; //Upcasting child object to base class object
+
+        /*
+         * Compiler removes some part of an object, it is named as object slicing
+         * Occurs when child object is assigned to a concrete base class object;
+         * Compiler removes part of an object because of preventing memory corruption
+         * */
+        Checking ch2("Melik",150,50);
+        Account account2 = ch; //Object slicing
+
+        /*
+         * If base class object is assigned to pointer of  child class,
+         * casting method has to be applied
+         * This method is named as down casting
+         * */
+        Checking *ch3 = static_cast<Checking *>(account); //down cast
+
+        //Typeid works only when there is a virtual function in the base class because it works at compile time
+        if(typeid(*account) == typeid(Checking)){ //Check original upcasted object before down casted to specific child type
+            Checking *ch3 = static_cast<Checking *>(account);
+        }
+
+        Checking *ch4 = dynamic_cast<Checking *>(account); //Behave like typeid checking check object can be down casted or not
+        if(ch4 != nullptr){
+
+        }
+
+        Checking &ch5 = dynamic_cast<Checking &>(*account); //For reference if cast cannot be performed throws BAD CAST error
+    }
+
+    class Stream{
+        std::string fileName;
+    public:
+        Stream(const std::string &filename):fileName(filename){
+            cout << "Stream(const std::string&)" << endl;
+        }
+        const std::string & getFilename()const {
+
+            return fileName;
+        }
+        ~Stream(){
+            cout << "~Stream()" << endl;
+        }
+    };
+    class OutputStream : virtual public Stream{
+        std::ostream  &out;
+    public:
+        OutputStream(std::ostream &o,const std::string &filename):out(o), Stream(filename){
+            cout << "OutputStream" << endl;
+        }
+        std::ostream & operator <<(const std::string &data){
+            out << data;
+            return out;
+        }
+        ~OutputStream(){
+            cout << "~OutputStream" << endl;
+        }
+    };
+    class InputStream: virtual public Stream{
+        std::istream  &in;
+    public:
+        InputStream(std::istream &i,const std::string &filename):in(i),Stream(filename){
+            cout << "InputStream" << endl;
+        }
+        std::istream & operator >>(std::string &data){
+            in >> data;
+            return in;
+        }
+        ~InputStream(){
+            cout << "~InputStream" << endl;
+        }
+    };
+    class IOStream:public InputStream,public OutputStream{
+    public:
+        IOStream(const std::string &filename):InputStream(std::cin,filename),OutputStream(std::cout,filename), Stream(filename){
+            cout << "IOStream" << endl;
+        }
+
+        ~IOStream(){
+            cout << "~IOStream" << endl;
+        }
+    };
+
+    void multipleInheritance(){
+        IOStream stream("doc.txt");
+        std::string data;
+        stream >> data;
+        stream << data;
+        stream << stream.getFilename() << endl;
+    }
 }
 
 
 
 int main() {
-    initVariables();
-    reference();
-    constQualifier();
-    autoUsage();
-    rangeBasedForLoops();
-    functionOverloading();
-    memoryAllocation();
-    constructorAndDestructor();
-    copyConstructor();
-    LRValueAndRValueRef::assigmentExample();
-    LRValueAndRValueRef::rValueReference();
-    CopyMoveSemantics::copySemantic();
-    CopyMoveSemantics::forceCopyToMove();
-    OperatorOverloading::operatorOverloadingUnary();
-    OperatorOverloading::operatorOverloadingBinary();
-    OperatorOverloading::overloadPostPreIncrement();
-    OperatorOverloading::globalOverloadsAndAutoTypeConversion();
-    TypeConversion::primitiveToPrimitiveTypes();
-    TypeConversion::primitiveToUserType();
-    TypeConversion::userTypeToPrimitiveType();
-    TypeConversion::userTypeToUserType();
-    SmartPointers::uniquePointer();
-    SmartPointers::sharedPointer();
-    SmartPointers::weakPointer();
-    SmartPointers::deleter();
-    SmartPointers::dynamicArrays();
-    SmartPointers::makeFunctions();
-    AdvancedDataTypes::enums();
-    Templates::templateExamples();
-    Templates::perfectForwarding();
-
+//    initVariables();
+//    reference();
+//    constQualifier();
+//    autoUsage();
+//    rangeBasedForLoops();
+//    functionOverloading();
+//    memoryAllocation();
+//    constructorAndDestructor();
+//    copyConstructor();
+//    LRValueAndRValueRef::assigmentExample();
+//    LRValueAndRValueRef::rValueReference();
+//    CopyMoveSemantics::copySemantic();
+//    CopyMoveSemantics::forceCopyToMove();
+//    OperatorOverloading::operatorOverloadingUnary();
+//    OperatorOverloading::operatorOverloadingBinary();
+//    OperatorOverloading::overloadPostPreIncrement();
+//    OperatorOverloading::globalOverloadsAndAutoTypeConversion();
+//    TypeConversion::primitiveToPrimitiveTypes();
+//    TypeConversion::primitiveToUserType();
+//    TypeConversion::userTypeToPrimitiveType();
+//    TypeConversion::userTypeToUserType();
+//    SmartPointers::uniquePointer();
+//    SmartPointers::sharedPointer();
+//    SmartPointers::weakPointer();
+//    SmartPointers::deleter();
+//    SmartPointers::dynamicArrays();
+//    SmartPointers::makeFunctions();
+//    AdvancedDataTypes::enums();
+//    Templates::templateExamples();
+//    Templates::perfectForwarding();
+//    Templates::variadicTemplates();
+//    Templates::classTemplateExplicit();
+//    Templates::partialSpecializationTemplates();
+    loggerExample();
 
 
 
