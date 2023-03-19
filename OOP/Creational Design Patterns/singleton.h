@@ -98,6 +98,23 @@ public:
     }
 };
 
+//MonoState Pattern
+
+class Clock{
+    inline static int hour;
+    inline static int minute;
+    inline static int second;
+    void currentTime();
+    Clock();
+
+public:
+    static int getHour();
+    static int getMinute();
+    static int getSecond();
+    static std::string getTimeString();
+
+};
+
 
 void basicExample();
 void loggerExample();

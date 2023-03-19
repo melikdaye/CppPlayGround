@@ -8,6 +8,9 @@
 #include "OOP/Polymorphism/Transaction.h"
 #include "OOP/Creational Design Patterns/singleton.h"
 #include <list>
+#include "OOP/Creational Design Patterns/factory.h"
+#include "OOP/Creational Design Patterns/parameterisedFactory.h"
+#include "OOP/Creational Design Patterns/objectPool.h"
 
 using namespace std;
 
@@ -1269,9 +1272,11 @@ int main() {
 //    Templates::variadicTemplates();
 //    Templates::classTemplateExplicit();
 //    Templates::partialSpecializationTemplates();
-    loggerExample();
+//    loggerExample();
 
-
+//    Factory::executeSample();
+//    ParameterisedFactory::executeSample();
+    ObjectPoolMethod::executeSample();
 
     return 0;
 }

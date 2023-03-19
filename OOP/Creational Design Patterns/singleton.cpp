@@ -42,7 +42,7 @@ LoggerLazy::LoggerLazy(){
     stream = fopen("log.txt","w");
     atexit([](){
         delete pInstance;
-    })
+    });
 }
 LoggerLazy & LoggerLazy::instance() {
     //Double-checked locking pattern

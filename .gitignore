@@ -1,3 +1,4 @@
 .PVS-Studio/
-/cmake-build-debug
 cmake-build-debug/
+cmake-build-debug22/
+cmake-build-debug19/
