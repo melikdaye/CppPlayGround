@@ -105,6 +105,14 @@ void ObjectPoolMethod::executeSample(){
 }
 
 ActorPtr  ActorPool::acquireActor(const std::string &key) {
+    ActorPtr actor{};
+    if(auto it = actorPool.find(key); it == end(actorPool)){
+            actor = internalCreate(key);
+            actorPool[key].push_back(actor);
+            return actor;
+    }
+    auto actors = actorPool[key];
+
     for(auto &missile : missiles){
         if(!missile->isVisible()){
             missile->setVisible(true);
@@ -125,6 +133,23 @@ void ActorPool::releaseActor(const std::string &key, const ActorPtr & actor) {
             std::cout << "[POOL] Releasing an existing instance" << std::endl;
         }
     }
+}
+
+std::shared_ptr <Actor> ActorPool::internalCreate(const std::string &key) {
+    std::cout << "[POOL] Creating new actor of type: " << key << std::endl;
+    if(key == "missile"){
+        return std::make_shared<Missile>();
+    }
+    else if(key == "alien"){
+        return std::make_shared<Alien>();
+    }
+    return nullptr;
+}
+
+std::shared_ptr <Actor> ActorPool::findActor(const std::vector <ActorPtr> &actors) {
+    auto itActor = std::find_if(begin(actors),end(actors),[](const auto &actor){
+        return !actor.isVisible();
+    })
 }
 
 Alien::Alien() {

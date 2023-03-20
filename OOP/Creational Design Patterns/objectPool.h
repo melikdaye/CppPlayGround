@@ -73,7 +73,8 @@ using ActorPtr = std::shared_ptr<Actor>;
 class ActorPool{
     inline static std::unordered_map<std::string,std::vector<ActorPtr>> actorPool{};
     ActorPool() = default;
-
+    static ActorPtr internalCreate(const std::string &key);
+    static ActorPtr findActor(const std::vector<ActorPtr> &actors);
 public:
     static ActorPtr  acquireActor(const std::string &key);
     static void releaseActor(const std::string &key, const ActorPtr & actor);
