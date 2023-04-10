@@ -6,7 +6,7 @@
 #define CPPPLAYGROUND_ANIMAL_H
 
 #include <iostream>
-
+using namespace std;
 class Animal {
 public:
     void eat(){

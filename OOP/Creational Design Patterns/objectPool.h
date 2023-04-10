@@ -16,10 +16,32 @@
  *
  * */
 
+/*
+ * Pros
+ * Reduces coupling with concrete classes
+ * Behaves like operator new , but is more flexible
+ * Caching existing instances improves performance of the application
+ * Reduces the overhead of heap allocation & deallocation
+ * Reduces heap fragmentation
+ *
+ * Cons
+ * Memory may be wasted on unused pooled objects
+ * Pooled objects may remain in memory until the end of the program
+ * Objects that are acquired from the pool must be reset prior to their use
+ * ObjectPool class may get tightly coupled with the concrete classes
+ *
+ * When to use
+ * When frequently create & destroy objects
+ * Objects are expensive to create
+ *
+ *
+ * */
+
 #include <iostream>
 #include <vector>
 #include <thread>
 #include <unordered_map>
+#include <functional>
 
 class SharedObject{
     bool m_isUsed{true};
@@ -70,17 +92,112 @@ public:
 
 
 using ActorPtr = std::shared_ptr<Actor>;
+using Creator = std::function<ActorPtr()>;
 class ActorPool{
-    inline static std::unordered_map<std::string,std::vector<ActorPtr>> actorPool{};
+
+    struct ActorInfo {
+        std::vector<ActorPtr> actors{};
+        Creator creator;
+    };
+
+    inline static std::unordered_map<std::string,ActorInfo> actorPool{};
     ActorPool() = default;
     static ActorPtr internalCreate(const std::string &key);
     static ActorPtr findActor(const std::vector<ActorPtr> &actors);
 public:
+    static void registerCreator(const std::string &key,Creator creator);
     static ActorPtr  acquireActor(const std::string &key);
     static void releaseActor(const std::string &key, const ActorPtr & actor);
 };
 
 
+template<typename T>
+class DefaultAllocator{
+public:
+    T *operator()(){
+        return new T{};
+    }
+    void operator()(T *p){
+        delete p;
+    }
+    void reset(){
+
+    }
+};
+
+
+template<typename T,size_t maxSize=std::numeric_limits<size_t>::max(),typename AllocatorT=DefaultAllocator<T>>
+class ObjectPoolT{
+    struct ObjectInfo{
+        bool isUsed{};
+        T *object{};
+    };
+    inline static std::vector<ObjectInfo> pooledObjects{};
+    inline static AllocatorT allocator{};
+public:
+    [[nodiscard]] //If returned value will not be stored warning is raised by compiler
+    static T * acquire(){
+        for(auto &obj:pooledObjects){
+            if(!obj.isUsed){
+                obj.isUsed = true;
+                std::cout << "[POOL] Returning an existing object" << std::endl;
+                return obj.object;
+            }
+        }
+        if(pooledObjects.size() == maxSize){
+            std::cout << "[POOL] Pool is reached to the max size" << std::endl;
+            return nullptr;
+        }
+        std::cout << "[POOL] Creating a new object" << std::endl;
+        auto pObj = allocator();
+        pooledObjects.push_back({true,pObj});
+        return pObj;
+    }
+    static void release(const T *pObj){
+        for(auto &obj:pooledObjects){
+            if(obj.object == pObj){
+                obj.isUsed = false;
+                break;
+            }
+        }
+    }
+    static void destroy(){
+        for(auto &obj: pooledObjects){
+            if(obj.isUsed){
+                std::cout << "WARNING Deleting an object still in use" << std::endl;
+            }
+            allocator(obj.object);
+        }
+        allocator.reset();
+        pooledObjects.clear();
+    }
+
+};
+
+class Test{
+    Test(){
+
+    }
+
+public:
+    void Foo(){
+
+    }
+    friend class TestAllocator;
+};
+
+class TestAllocator{
+public:
+    Test *operator()(){
+        return new Test{};
+    }
+    void operator()(Test *p){
+        delete p;
+    }
+    void reset(){
+
+    }
+};
 
 namespace ObjectPoolMethod {
 

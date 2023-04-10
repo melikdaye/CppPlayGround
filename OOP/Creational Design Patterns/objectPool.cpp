@@ -52,22 +52,22 @@ void Missile::update() {
     std::cout << "->" ;
 }
 
-std::vector<std::shared_ptr<Missile>> missiles{};
+std::vector<ActorPtr> actors{};
 void fire(){
-    missiles.push_back(ActorPool::acquireMissile());
-    missiles.push_back(ActorPool::acquireMissile());
+    actors.push_back(ActorPool::acquireActor("missile"));
+    actors.push_back(ActorPool::acquireActor("alien"));
 }
 void animate(){
-    for(auto &m: missiles){
+    for(auto &m: actors){
         m->update();
     }
 }
 void explode(){
     std::cout << "X" << std::endl;
-    for(auto &m: missiles){
-        m->setVisible(false);
+    for(auto &m: actors){
+        m->setVisibility(false);
     }
-    missiles.clear();
+    actors.clear();
     using namespace std::chrono_literals;
     std::this_thread::sleep_for(1s);
 }
@@ -86,8 +86,17 @@ void ObjectPoolMethod::executeSample(){
     s3->methodA();
     s3->methodB();
 
+    ActorPool::registerCreator("missile",[](){
+       return std::make_shared<Missile>();
+    });
+    ActorPool::registerCreator("alien",[](){
+        return std::make_shared<Alien>();
+    });
+
+
+    int loop{2};
     int counter{};
-    while (true){
+    while (loop != 0){
         ++counter;
         if(counter == 1){
             fire();
@@ -98,58 +107,85 @@ void ObjectPoolMethod::executeSample(){
         if(counter > 5){
             explode();
             counter = 0;
+            --loop;
         }
         using namespace std::chrono_literals;
         std::this_thread::sleep_for(1s);
     }
+
+//    using IntPool = ObjectPoolT<int>;
+//    auto p1 = IntPool::acquire();
+//    auto p2 = IntPool::acquire();
+//    auto p3 = IntPool::acquire();
+//
+//    IntPool::release(p1);
+//    auto p4 = IntPool::acquire();
+//    IntPool::destroy();
+
+    using TestPool = ObjectPoolT<Test,2,TestAllocator>;
+    auto p1 = TestPool::acquire();
+    auto p2 = TestPool::acquire();
+    auto p3 = TestPool::acquire();
+
+    TestPool::release(p1);
+    auto p4 = TestPool::acquire();
+    TestPool::destroy();
+
 }
 
 ActorPtr  ActorPool::acquireActor(const std::string &key) {
     ActorPtr actor{};
     if(auto it = actorPool.find(key); it == end(actorPool)){
-            actor = internalCreate(key);
-            actorPool[key].push_back(actor);
-            return actor;
+            return internalCreate(key);
     }
-    auto actors = actorPool[key];
-
-    for(auto &missile : missiles){
-        if(!missile->isVisible()){
-            missile->setVisible(true);
-            std::cout << "[POOL] Returning an existing instance" << std::endl;
-            return missile;
-        }
+    auto s_actors = actorPool[key].actors;
+    actor = findActor(s_actors);
+    if(!actor){
+        actor = internalCreate(key);
     }
-    std::cout << "[POOL] Creating a new instance" << std::endl;
-    auto missile = std::make_shared<Missile>();
-    missiles.push_back(missile);
-    return missile;
+    else{
+        std::cout << "[POOL] Returning existing actor of type : " << key << std::endl;
+    }
+    return  actor;
 }
 
 void ActorPool::releaseActor(const std::string &key, const ActorPtr & actor) {
-    for(auto &missile : missiles){
-        if(missile == r_actor){
-            missile->setVisible(false);
-            std::cout << "[POOL] Releasing an existing instance" << std::endl;
-        }
+    if(auto it = actorPool.find(key); it == end(actorPool)){
+        throw std::runtime_error("Unknown key");
     }
+    auto s_actors = actorPool[key].actors;
+    for(auto &a:s_actors){
+        a->setVisibility(false);
+        break;
+    }
+
 }
 
 std::shared_ptr <Actor> ActorPool::internalCreate(const std::string &key) {
-    std::cout << "[POOL] Creating new actor of type: " << key << std::endl;
-    if(key == "missile"){
-        return std::make_shared<Missile>();
+    ActorPtr actor{};
+    if(!actorPool[key].creator){
+        std::cout << "Creator not registered" << std::endl;
+        return actor;
     }
-    else if(key == "alien"){
-        return std::make_shared<Alien>();
+    actor = actorPool[key].creator();
+    actorPool[key].actors.push_back(actor);
+    std::cout << "[POOL] Creating new actor of type: " << key << std::endl;
+    return actor;
+}
+
+ActorPtr ActorPool::findActor(const std::vector <ActorPtr> &actors) {
+    auto itActor = std::find_if(begin(actors),end(actors),[](const auto &actor){
+        return !static_cast<ActorPtr>(actor)->isVisible();
+    });
+    if(itActor != end(actors)){
+        (*itActor)->setVisibility(true);
+        return *itActor;
     }
     return nullptr;
 }
 
-std::shared_ptr <Actor> ActorPool::findActor(const std::vector <ActorPtr> &actors) {
-    auto itActor = std::find_if(begin(actors),end(actors),[](const auto &actor){
-        return !actor.isVisible();
-    })
+void ActorPool::registerCreator(const std::string &key, Creator creator) {
+        actorPool[key].creator = creator;
 }
 
 Alien::Alien() {
